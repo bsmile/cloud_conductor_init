@@ -49,7 +49,7 @@ load test_helper
 
     for role in $(echo ${roles} | tr -s ',' ' ')
     do
-      assert_file_exists /opt/cloudconductor/logs/${pattern}/${pattern}_${role}_chef-solo.log
+      assert_file_exists /opt/cloudconductor/logs/${pattern}/${pattern}_chef-solo.log
     done
   done
 }

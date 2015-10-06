@@ -9,6 +9,6 @@ group :development do
 end
 
 group :test do
-  gem "test-kitchen"
-  gem "kitchen-docker"
+  gem "test-kitchen", '1.3.1'
+  gem "kitchen-docker", '1.7.0'
 end

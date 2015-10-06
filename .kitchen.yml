@@ -45,9 +45,9 @@ suites:
       - ./bin/init.sh
       - ./test/bin/pre_configure.sh
     attributes:
-      cc_pattern: tomcat_cluster_pattern
+      cc_pattern: tomcat_pattern
       cc_revision: develop
-      cc_role: web,ap
+      cc_role: web
       cc_token: UWHlGY3fjIqpcDxZdVC4yw==
 
   - name: pre-configure_optional
@@ -58,5 +58,10 @@ suites:
     attributes:
       cc_pattern: tomcat_pattern
       cc_revision: develop
+      cc_patterns_list:
+        - pattern: amanda_pattern
+          revision: develop
+        - pattern: zabbix_pattern
+          revision: develop
       cc_role: db
       cc_token: UWHlGY3fjIqpcDxZdVC4yw==

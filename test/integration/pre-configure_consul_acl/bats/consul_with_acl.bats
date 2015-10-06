@@ -22,8 +22,8 @@ load test_helper
   run bash -c "jq -r 'keys | .[]' /etc/consul.d/default.json | grep acl_master_token"
   assert_success
 
-  source /opt/cloudconductor/config
-  token=${CONSUL_SECRET_KEY}
+  run bash -c "cat /etc/metronome/config.yml | grep token: | tr -d 'token: ' | tr -d \'"
+  token=${output}
 
   run jq -r '.acl_master_token' /etc/consul.d/default.json
   assert_success "${token}"
@@ -41,8 +41,8 @@ load test_helper
   run bash -c "jq -r 'keys | .[]' /etc/consul.d/default.json | grep encrypt"
   assert_success
 
-  source /opt/cloudconductor/config
-  token=${CONSUL_SECRET_KEY}
+  run bash -c "cat /etc/metronome/config.yml | grep token: | tr -d 'token: ' | tr -d \'"
+  token=${output}
 
   run jq -r '.encrypt' /etc/consul.d/default.json
   assert_success "${token}"

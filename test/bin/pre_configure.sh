@@ -9,11 +9,13 @@ if [ -f ${CHEF_ENV_FILE} ]; then
   source ${CHEF_ENV_FILE}
 fi
 
+CONSUL_SECRET_KEY=$(cat /etc/consul.d/default.json | jq -r .acl_master_token)
+
 service consul start
 
 sleep 10
 
-output="$(bash /opt/cloudconductor/bin/configure.sh)"
+output="$(bash -x /opt/cloudconductor/bin/configure.sh ${CONSUL_SECRET_KEY})"
 status=$?
 
 if [ $status -ne 0 ] ; then

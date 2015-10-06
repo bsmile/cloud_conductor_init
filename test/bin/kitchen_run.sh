@@ -21,6 +21,10 @@ package_expect_install() {
   fi
 }
 
+kitchen() {
+  bundle exec kitchen "$@"
+}
+
 func_destroy() {
   instance=$1
   shift
@@ -104,6 +108,13 @@ func_converge() {
   role=${data[2]}
   token=${data[3]}
 
+  list="$(echo ${data_all} | jq -r '.provisioner.attributes.cc_patterns_list')"
+  if [ "${list}" != "null" ]; then
+    list=$(echo ${list} | jq -c ". + [{pattern: \"${pattern}\", revision: \"${revision}\"}]")
+    patterns_json=$(echo ${list} | jq -c 'map(. + {url: "https://github.com/cloudconductor-patterns/\(.pattern).git"}) | map({(.pattern):.}) | add')
+  else
+    patterns_json="{\"${pattern}\":{\"url\":\"https://github.com/cloudconductor-patterns/${pattern}.git\", \"revision\":\"${revision}\"}}"
+  fi
 
   {
   echo "#! /bin/bash ${bash_param}"
@@ -113,9 +124,10 @@ func_converge() {
   echo "root_path=${deploy_path}"
   echo 'cd ${root_path}'
 
-  echo "export PATTERN_NAME=${pattern}"
-  echo "export PATTERN_URL=\"https://github.com/cloudconductor-patterns/${pattern}.git\""
-  echo "export PATTERN_REVISION=${revision}"
+#  echo "export PATTERN_NAME=${pattern}"
+#  echo "export PATTERN_URL=\"https://github.com/cloudconductor-patterns/${pattern}.git\""
+#  echo "export PATTERN_REVISION=${revision}"
+  echo "export PATTERNS_JSON='${patterns_json}'"
   echo "export ROLE=${role}"
   if [ "${token}" != "" -a "${token}" != "null" ]; then
     echo "export CONSUL_SECRET_KEY=${token}"
@@ -124,7 +136,7 @@ func_converge() {
   echo "run_list=(${run_list[@]})"
   echo 'for file in ${run_list[@]}'
   echo 'do'
-  echo '  bash ${param} ${file} || exit $?'
+  echo '  bash -x ${param} ${file} || exit $?'
   echo 'done'
   } > ./bootstrap.sh
 

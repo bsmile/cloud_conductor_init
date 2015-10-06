@@ -7,12 +7,13 @@ load test_helper
   ipaddress=`hostname -i`
 
   source /opt/cloudconductor/config
+  CONSUL_SECRET_KEY=$(cat /etc/consul.d/default.json | jq -r .acl_master_token)
   token=${CONSUL_SECRET_KEY}
   roles=${ROLE}
 
-  run bash -c "curl -s --noproxy localhost http://localhost:8500/v1/kv/cloudconductor/servers/${hostname}?raw\&token=${token} | jq -r '.private_ip'"
+  run bash -c "curl -s --noproxy localhost http://localhost:8500/v1/kv/cloudconductor/servers/${hostname}?raw\&token=${token} | jq -r '.[][][].private_ip'"
   assert_success "${ipaddress}"
 
-  run bash -c "curl -s --noproxy localhost http://localhost:8500/v1/kv/cloudconductor/servers/${hostname}?raw\&token=${token} | jq -r -c '.roles | .[]'"
+  run bash -c "curl -s --noproxy localhost http://localhost:8500/v1/kv/cloudconductor/servers/${hostname}?raw\&token=${token} | jq -r -c '.[][][].roles | .[]'"
   assert_success "$(echo ${roles} | tr -s ',' '\n' )"
 }

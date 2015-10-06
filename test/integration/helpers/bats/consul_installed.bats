@@ -7,10 +7,10 @@ load test_helper
   assert_success
 }
 
-@test "consul version is v0.5.0" {
+@test "consul version is v0.5.2" {
   run /usr/local/bin/consul --version
   assert_success
-  assert_equal "${lines[0]}" "Consul v0.5.0"
+  assert_equal "${lines[0]}" "Consul v0.5.2"
 }
 
 @test "consul config dir is exists" {

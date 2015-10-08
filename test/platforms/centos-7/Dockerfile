@@ -17,6 +17,16 @@ RUN echo "proxy=<%= @http_proxy %>" >> /etc/yum.conf
 RUN echo "include_only=<%= @yum_conf[:include_only] %>" >> /etc/yum/pluginconf.d/fastestmirror.conf
 <% end %>
 
+
+##
+# for run /sbin/init
+#
+#RUN yum swap -y fakesystemd systemd
+RUN yum install -y initscripts
+
+#RUN sed -ri 's/^UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
+
+
 ##
 # for kitchen-docker
 #
@@ -31,13 +41,8 @@ RUN echo <%= "#{@username}:#{@password}" %> | chpasswd
 RUN echo '<%= @username %> ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 
 ##
-# for run /sbin/init
-#
-RUN sed -ri 's/^UsePAM yes/UsePAM no/' /etc/ssh/sshd_config
-RUN yum install -y upstart
-
-##
 # install of Chef and Berkshelf
+#
 #RUN yum -y install make gcc gcc-c++ autoconf
 
 #RUN curl -L http://www.opscode.com/chef/install.sh | bash

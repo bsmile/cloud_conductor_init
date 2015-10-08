@@ -42,9 +42,10 @@ package install epel-release || exit $?
 sed -i 's/enabled=1/enabled=0/g' /etc/yum.repos.d/epel.repo || exit $?
 
 # iptables disabled
-package install iptables || exit $?
-/sbin/chkconfig iptables off
-service iptables stop
+service_ctl disable iptables || exit $?
+
+# firewalld disabled
+service_ctl disable firewalld || exit $?
 
 # create directory for Consul event-handler
 directory ${event_handler_dir} root:root 755 || exit $?
@@ -54,6 +55,8 @@ file_copy ${files_dir}/default/event-handler ${event_handler_dir}/event-handler 
 
 file_copy ${files_dir}/default/action_runner.sh ${event_handler_dir}/action_runner.sh root:root 755 || exit $?
 file_copy ${files_dir}/default/patterns.py ${event_handler_dir}/patterns.py root:root 755 || exit $?
+
+package install openssl || exit $?
 
 # create self-signed certificate for Consul HTTPS API
 openssl req -new -newkey rsa:2048 -sha1 -x509 -nodes \
@@ -89,6 +92,8 @@ if [ -f /etc/udev/rules.d/70-persistent-net.rules ] ; then
     /etc/udev/rules.d/70-persistent-net.rules \
   || exit $?
 fi
+
+package install git || exit $?
 
 # prepare all patterns
 for name in `echo ${PATTERNS_JSON} | jq -r 'keys | .[]'`

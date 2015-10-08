@@ -9,6 +9,23 @@ consul_data_dir='/var/lib/consul'
 consul_config_dir='/etc/consul.d'
 etc_config_dir='/etc/sysconfig/consul'
 
+#
+# function:: os_version
+#
+os_version() {
+  local os_version=6
+
+  if [ -f /etc/redhat-release ]; then
+    os_version=$(rpm -qf --queryformat="%{VERSION}" /etc/redhat-release)
+  fi
+
+  test ${os_version} -eq $1
+  return $?
+}
+
+#
+# function:: install_consul
+#
 install_consul() {
   remote_file https://dl.bintray.com/mitchellh/consul/${consul_version}.zip \
       ${tmp_dir}/${consul_version}.zip \
@@ -25,7 +42,14 @@ install_consul() {
   echo "GOMAXPROCS=${cpu_total}" > ${etc_config_dir}
   chmod 644 ${etc_config_dir}
 
-  file_copy ${files_dir}/default/consul-init /etc/init.d/consul root:root 755 || return $?
+  if os_version 6; then
+    file_copy ${files_dir}/default/consul-init /etc/init.d/consul root:root 755 || return $?
+  fi
+
+  if os_version 7; then
+    file_copy ${files_dir}/default/consul.service /etc/systemd/system/consul.service root:root 644 || return $?
+    systemctl daemon-reload
+  fi
 
   file_copy ${conf_dir}/consul_default.json ${consul_config_dir}/default.json root:root 644 || return $?
 
@@ -37,13 +61,16 @@ install_consul() {
     file_copy ${tmp_dir}/consul_default.json ${consul_config_dir}/default.json root:root 644 || return $?
   fi
 
-  service consul start || return $?
+  service_ctl start consul || return $?
 
-  chkconfig --add consul || return $?
+  service_ctl enable consul || return $?
 }
 
+#
+# function:: delete_consul_data
+#
 delete_consul_data() {
-  service consul stop || return $?
+  service_ctl stop consul || return $?
 
   rm -r -f ${consul_data_dir}/*
 }

@@ -97,7 +97,7 @@ func_converge() {
 
   func_init ${instance} $@
 
-  run_list=( "./lib/chef-ruby-env.sh" )
+  run_list=()
 
   data_all=$(kitchen diagnose ${instance} | ruby -e "require 'yaml'; require 'json'; puts JSON.pretty_generate YAML.load($<.read)" | jq ".instances.\"${instance}\"")
   run_list+=( $(echo ${data_all} | jq '.provisioner.run_list | .[]'))

@@ -10,8 +10,25 @@ platforms:
     driver:
       images: centos:centos6
       dockerfile: test/platforms/centos-6/Dockerfile
+      run_command: "/sbin/init"
+  - name: centos-7
+    driver:
+      images: centos:centos7
+      dockerfile: test/platforms/centos-7/Dockerfile
+      privileged: true
+      run_command: "/sbin/init"
 
 suites:
+  - name: setup
+    run_list:
+      - ./bin/setup.sh
+      - ./test/bin/chef-ruby-env.sh
+    attributes:
+      cc_pattern: tomcat_pattern
+      cc_revision: develop
+      cc_role: web
+      cc_token:
+
   - name: pre-build
     run_list:
       - ./bin/init.sh

@@ -37,7 +37,14 @@ load test_helper
 }
 
 @test "consul service is found" {
-  run test -x /etc/init.d/consul
+  os_version=$(rpm -qf --queryformat="%{VERSION}" /etc/redhat-release)
+
+  if [ ${os_version} -eq 6 ]; then
+    run bash -c "service --status-all | grep consul"
+  else
+    run bash -c "systemctl --all | grep \"^consul\""
+  fi
+
   assert_success
 }
 
